@@ -14,6 +14,10 @@ you mine a deposit.
   from the addon compartment menu.
 - **Chat commands** - every option can also be changed by slash command.
 
+## Screenshots
+
+![Settings page](docs/settings.png)
+
 ## Install
 
 1. Download `KachingOnEvent-vX.Y.Z.zip` from the [releases](https://github.com/tf4482/KachingOnEvent/releases).

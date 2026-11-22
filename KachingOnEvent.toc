@@ -1,0 +1,14 @@
+## Interface: 16001
+## Title: KachingOnEvent
+## Notes: Plays a kaching sound when an auction sells, an herb is gathered, or ore is mined
+## Author: tf4482
+## Version: @project-version@
+## IconTexture: Interface/Icons/INV_Misc_Coin_01
+## SavedVariables: KachingOnEventDB
+## SavedVariablesPerCharacter: KachingOnEventCharDB
+
+Output.lua
+Store.lua
+Settings.lua
+Slash.lua
+KachingOnEvent.lua

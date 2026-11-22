@@ -20,7 +20,8 @@ you mine a deposit.
 
 ## Install
 
-1. Download `KachingOnEvent-vX.Y.Z.zip` from the [releases](https://github.com/tf4482/KachingOnEvent/releases).
+1. Download `KachingOnEvent-vX.Y.Z.zip` from the [releases](https://github.com/tf4482/KachingOnEvent/releases) or
+   [CurseForge](https://www.curseforge.com/projects/1823978).
 2. Unzip it into `World of Warcraft/<game folder>/Interface/AddOns/`.
 3. Restart the game or type `/reload`.
 

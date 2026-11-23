@@ -13,23 +13,18 @@ local TRIGGERS = {
   { key = "mining", label = "Ore mined", help = "you mine a deposit" },
 }
 
--- chat pattern for a format string such as ERR_AUCTION_SOLD_S
-local function Pattern(format)
-  local escaped = format:gsub("[%^%$%(%)%.%[%]%*%+%-%?]", "%%%0")
-  return "^" .. escaped:gsub("%%s", ".+") .. "$"
-end
-
 -- whether a value is hidden from addons (12.x secret values)
 local function Secret(value)
   return issecretvalue ~= nil and issecretvalue(value)
 end
 
--- localized "auction sold" system message, if the client defines it
-local auctionSold = ERR_AUCTION_SOLD_S and Pattern(ERR_AUCTION_SOLD_S)
+-- time of the last sound, to merge notifications fired twice for one sale
+local lastPlayed = 0
 
 -- play the sound when the setting for this trigger is on
 local function Kaching(key)
-  if ns.db ~= nil and ns.Get(key) then
+  if ns.db ~= nil and ns.Get(key) and GetTime() - lastPlayed > 0.5 then
+    lastPlayed = GetTime()
     PlaySoundFile(SOUND, "Master")
   end
 end
@@ -45,12 +40,15 @@ end
 -- event handlers by event name
 local events = {}
 
--- system chat line: auction sold
-function events.CHAT_MSG_SYSTEM(text)
-  if auctionSold and type(text) == "string" and not Secret(text) and text:match(auctionSold) then
+-- auction house notice while the auction house is closed: auction sold
+function events.AUCTION_HOUSE_SHOW_FORMATTED_NOTIFICATION(notification)
+  if notification == Enum.AuctionHouseNotification.AuctionSold then
     Kaching("auction")
   end
 end
+
+-- same notice while the auction house is open
+events.AUCTION_HOUSE_SHOW_NOTIFICATION = events.AUCTION_HOUSE_SHOW_FORMATTED_NOTIFICATION
 
 -- own cast finished: herb gathering or mining
 function events.UNIT_SPELLCAST_SUCCEEDED(_, _, spellID)
@@ -70,7 +68,8 @@ end
 
 -- one frame dispatching all events above
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("CHAT_MSG_SYSTEM")
+frame:RegisterEvent("AUCTION_HOUSE_SHOW_FORMATTED_NOTIFICATION")
+frame:RegisterEvent("AUCTION_HOUSE_SHOW_NOTIFICATION")
 frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 frame:SetScript("OnEvent", function(_, event, ...)
   events[event](...)

@@ -5,7 +5,7 @@ you mine a deposit.
 
 ## Features
 
-- **Auction sold** - kaching when the "A buyer has been found for your auction" message appears.
+- **Auction sold** - kaching when the auction house reports that one of your auctions sold.
 - **Herb gathered** - kaching when an herb gathering cast succeeds.
 - **Ore mined** - kaching when a mining cast succeeds.
 - **Remembered** - settings are saved per account, or per character with one checkbox;

@@ -18,14 +18,18 @@ local function Secret(value)
   return issecretvalue ~= nil and issecretvalue(value)
 end
 
--- time of the last sound, to merge notifications fired twice for one sale
-local lastPlayed = 0
+-- play the sound now; throttled to merge notifications fired twice for one sale
+local function Play()
+  if ns.Throttle("kaching", 0.5) then
+    PlaySoundFile(SOUND, "Master")
+  end
+end
 
 -- play the sound when the setting for this trigger is on
 local function Kaching(key)
-  if ns.db ~= nil and ns.Get(key) and GetTime() - lastPlayed > 0.5 then
-    lastPlayed = GetTime()
-    PlaySoundFile(SOUND, "Master")
+  if ns.db ~= nil and ns.Get(key) then
+    ns.Debug(key .. " matched")
+    Play()
   end
 end
 
@@ -42,6 +46,7 @@ local events = {}
 
 -- auction house notice while the auction house is closed: auction sold
 function events.AUCTION_HOUSE_SHOW_FORMATTED_NOTIFICATION(notification)
+  ns.Debug("auction house notification " .. tostring(notification))
   if notification == Enum.AuctionHouseNotification.AuctionSold then
     Kaching("auction")
   end
@@ -66,11 +71,21 @@ function events.UNIT_SPELLCAST_SUCCEEDED(_, _, spellID)
   end
 end
 
+-- events registered for the player unit only
+local unitEvents = { UNIT_SPELLCAST_SUCCEEDED = true }
+
 -- one frame dispatching all events above
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("AUCTION_HOUSE_SHOW_FORMATTED_NOTIFICATION")
-frame:RegisterEvent("AUCTION_HOUSE_SHOW_NOTIFICATION")
-frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+for event in pairs(events) do
+  -- skip events this client does not know
+  if C_EventUtils.IsEventValid(event) then
+    if unitEvents[event] then
+      frame:RegisterUnitEvent(event, "player")
+    else
+      frame:RegisterEvent(event)
+    end
+  end
+end
 frame:SetScript("OnEvent", function(_, event, ...)
   events[event](...)
 end)
@@ -102,6 +117,32 @@ ns.Command({
   run = function(args)
     ns.Set("perCharacter", args.state == "on")
     Status()
+  end,
+})
+ns.Command({
+  name = "test",
+  help = "play the kaching sound once now",
+  run = function()
+    Play()
+    ns.Print("test: kaching played")
+  end,
+})
+ns.Command({
+  name = "reset",
+  help = "reset the active profile's settings to defaults",
+  run = function()
+    ns.ResetSettings()
+    ns.Success("settings reset to defaults")
+    Status()
+  end,
+})
+ns.Command({
+  name = "debug",
+  help = "show what the addon does in chat, until /reload",
+  args = { { name = "state", choices = { "on", "off" } } },
+  run = function(args)
+    ns.debug = args.state == "on"
+    ns.Status("debug", ns.OnOff(ns.debug))
   end,
 })
 ns.Command({ name = "config", help = "open the settings page", run = ns.OpenSettings })

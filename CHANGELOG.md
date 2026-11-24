@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `/kaching test`, `/kaching reset`, and `/kaching debug on|off` commands.
+
+### Changed
+
+- Events unknown to the client are skipped instead of stopping the addon from loading.
+
 ## [0.1.1] - 2026-11-24
 
 ### Fixed
